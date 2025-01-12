@@ -137,9 +137,7 @@ ollama run llama3
 \`\`\`
 
 ### 4. **Use the API**
-You are ready to go
-
-Feel free to ask me anything once you're set up! 😊
+You are ready to go! Start typing messages in the chat box to interact with the Llama3 model through the API. Enjoy! 🦙
 `,
       };
       setMessages([welcomeMessage]);
