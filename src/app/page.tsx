@@ -1,20 +1,12 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import ReactMarkdown from "react-markdown";
 import { Highlight, themes } from "prism-react-renderer";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
-import { Send, Copy, } from "lucide-react";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogDescription,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from "@/components/ui/dialog";
+import { Send, Copy } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -108,58 +100,51 @@ const ChatBubble: React.FC<Message> = ({ role, content }) => {
   );
 };
 
-// const SettingsModal: React.FC<{
-//   modelName: string;
-//   setModelName: (name: string) => void;
-//   apiUrl: string;
-//   setApiUrl: (url: string) => void;
-// }> = ({ modelName, setModelName, apiUrl, setApiUrl }) => (
-//   <Dialog>
-//     <DialogTrigger asChild>
-//       <Button variant="ghost" size="icon">
-//         <Settings className="h-[1.2rem] w-[1.2rem]" />
-//       </Button>
-//     </DialogTrigger>
-//     <DialogContent className="sm:max-w-[425px]">
-//       <DialogHeader>
-//         <DialogTitle>Chat Settings</DialogTitle>
-//         <DialogDescription>
-//           Configure your chat model and API settings here.
-//         </DialogDescription>
-//       </DialogHeader>
-//       <div className="grid gap-4 py-4">
-//         <div className="grid grid-cols-4 items-center gap-4">
-//           <label htmlFor="model" className="text-right">
-//             Model
-//           </label>
-//           <Input
-//             id="model"
-//             value={modelName}
-//             onChange={(e) => setModelName(e.target.value)}
-//             className="col-span-3"
-//           />
-//         </div>
-//         <div className="grid grid-cols-4 items-center gap-4">
-//           <label htmlFor="apiUrl" className="text-right">
-//             API URL
-//           </label>
-//           <Input
-//             id="apiUrl"
-//             value={apiUrl}
-//             onChange={(e) => setApiUrl(e.target.value)}
-//             className="col-span-3"
-//           />
-//         </div>
-//       </div>
-//     </DialogContent>
-//   </Dialog>
-// );
-
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      // Display a welcome message with installation instructions
+      const welcomeMessage: Message = {
+        role: "assistant",
+        content: `## Welcome to Ollama Chat! 🎉
+
+To get started, you'll need to install Ollama and pull the Llama3 model. Here's how:
+
+### 1. **Install Ollama**
+Run the following command in your terminal to install Ollama:
+
+\`\`\`bash
+curl -fsSL https://ollama.ai/install.sh | sh
+\`\`\`
+
+### 2. **Pull the Llama3 Model**
+Once Ollama is installed, download the Llama3 model:
+
+\`\`\`bash
+ollama pull llama3
+\`\`\`
+
+### 3. **Run the Model**
+Start interacting with the model using:
+
+\`\`\`bash
+ollama run llama3
+\`\`\`
+
+### 4. **Use the API**
+You are ready to go
+
+Feel free to ask me anything once you're set up! 😊
+`,
+      };
+      setMessages([welcomeMessage]);
+    }
+  }, [messages.length]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -253,51 +238,62 @@ export default function Home() {
 
   return (
     <div className={cn(inter.className, "flex justify-center h-screen bg-white")}>
-      <div className=" max-w-screen-lg border flex flex-col flex-grow overflow-hidden">
+      <div className="max-w-screen-lg border flex flex-col flex-grow overflow-hidden">
         <header className="flex justify-between items-center p-4">
           <h1 className="text-xl font-semibold">Ollama Chat</h1>
           <div className="flex items-center space-x-2">
-            {/* <SettingsModal
-              modelName={modelName}
-              setModelName={setModelName}
-              apiUrl={apiUrl}
-              setApiUrl={setApiUrl}
-            /> */}
             <Button variant="outline" onClick={clearChat}>
               Clear Chat
             </Button>
           </div>
         </header>
         <hr />
-        <main className="flex-grow flex flex-col overflow-hidden">
-          <div
-            ref={chatContainerRef}
-            className="flex-grow overflow-y-auto p-4 space-y-4 px-10"
-          >
-            {messages.map((message, index) => (
-              <ChatBubble key={index} {...message} />
-            ))}
-            {isLoading && (
-              <div className="flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-              </div>
-            )}
+        {messages.length <= 0 ? (
+          <div className="p-4 bg-gray-100 text-gray-600 text-sm">
+            <p>
+              This is a simple chat interface for the{" "}
+              <a
+                href="https://ollama.ai/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                Ollama
+              </a>{" "}
+              API. Follow the instructions above to get started!
+            </p>
           </div>
-          <div className="p-4 border-t bg-white">
-            <form onSubmit={handleSubmit} className="flex space-x-2">
-              <Input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type a message..."
-                className="flex-grow"
-              />
-              <Button type="submit" disabled={isLoading}>
-                <Send size={20} />
-              </Button>
-            </form>
-          </div>
-        </main>
+        ) : (
+          <main className="flex-grow flex flex-col overflow-hidden">
+            <div
+              ref={chatContainerRef}
+              className="flex-grow overflow-y-auto p-4 space-y-4 px-10"
+            >
+              {messages.map((message, index) => (
+                <ChatBubble key={index} {...message} />
+              ))}
+              {isLoading && (
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                </div>
+              )}
+            </div>
+            <div className="p-4 border-t bg-white">
+              <form onSubmit={handleSubmit} className="flex space-x-2">
+                <Textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Type a message..."
+                  className="flex-grow"
+                  rows={3}
+                />
+                <Button type="submit" disabled={isLoading}>
+                  <Send size={20} />
+                </Button>
+              </form>
+            </div>
+          </main>
+        )}
       </div>
     </div>
   );
