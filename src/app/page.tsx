@@ -6,15 +6,15 @@ import ReactMarkdown from "react-markdown";
 import { Highlight, themes } from "prism-react-renderer";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
-import { Send, Copy, Settings } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Send, Copy, } from "lucide-react";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogDescription,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+// } from "@/components/ui/dialog";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -108,58 +108,56 @@ const ChatBubble: React.FC<Message> = ({ role, content }) => {
   );
 };
 
-const SettingsModal: React.FC<{
-  modelName: string;
-  setModelName: (name: string) => void;
-  apiUrl: string;
-  setApiUrl: (url: string) => void;
-}> = ({ modelName, setModelName, apiUrl, setApiUrl }) => (
-  <Dialog>
-    <DialogTrigger asChild>
-      <Button variant="ghost" size="icon">
-        <Settings className="h-[1.2rem] w-[1.2rem]" />
-      </Button>
-    </DialogTrigger>
-    <DialogContent className="sm:max-w-[425px]">
-      <DialogHeader>
-        <DialogTitle>Chat Settings</DialogTitle>
-        <DialogDescription>
-          Configure your chat model and API settings here.
-        </DialogDescription>
-      </DialogHeader>
-      <div className="grid gap-4 py-4">
-        <div className="grid grid-cols-4 items-center gap-4">
-          <label htmlFor="model" className="text-right">
-            Model
-          </label>
-          <Input
-            id="model"
-            value={modelName}
-            onChange={(e) => setModelName(e.target.value)}
-            className="col-span-3"
-          />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <label htmlFor="apiUrl" className="text-right">
-            API URL
-          </label>
-          <Input
-            id="apiUrl"
-            value={apiUrl}
-            onChange={(e) => setApiUrl(e.target.value)}
-            className="col-span-3"
-          />
-        </div>
-      </div>
-    </DialogContent>
-  </Dialog>
-);
+// const SettingsModal: React.FC<{
+//   modelName: string;
+//   setModelName: (name: string) => void;
+//   apiUrl: string;
+//   setApiUrl: (url: string) => void;
+// }> = ({ modelName, setModelName, apiUrl, setApiUrl }) => (
+//   <Dialog>
+//     <DialogTrigger asChild>
+//       <Button variant="ghost" size="icon">
+//         <Settings className="h-[1.2rem] w-[1.2rem]" />
+//       </Button>
+//     </DialogTrigger>
+//     <DialogContent className="sm:max-w-[425px]">
+//       <DialogHeader>
+//         <DialogTitle>Chat Settings</DialogTitle>
+//         <DialogDescription>
+//           Configure your chat model and API settings here.
+//         </DialogDescription>
+//       </DialogHeader>
+//       <div className="grid gap-4 py-4">
+//         <div className="grid grid-cols-4 items-center gap-4">
+//           <label htmlFor="model" className="text-right">
+//             Model
+//           </label>
+//           <Input
+//             id="model"
+//             value={modelName}
+//             onChange={(e) => setModelName(e.target.value)}
+//             className="col-span-3"
+//           />
+//         </div>
+//         <div className="grid grid-cols-4 items-center gap-4">
+//           <label htmlFor="apiUrl" className="text-right">
+//             API URL
+//           </label>
+//           <Input
+//             id="apiUrl"
+//             value={apiUrl}
+//             onChange={(e) => setApiUrl(e.target.value)}
+//             className="col-span-3"
+//           />
+//         </div>
+//       </div>
+//     </DialogContent>
+//   </Dialog>
+// );
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [modelName, setModelName] = useState<string>("llama3");
-  const [apiUrl, setApiUrl] = useState<string>("http://localhost:11434");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -180,13 +178,13 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/ollama-proxy", {
+      const response = await fetch("http://localhost:11434/api/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: modelName,
+          model: "llama3",
           prompt: input,
           stream: true,
         }),
@@ -254,17 +252,17 @@ export default function Home() {
   };
 
   return (
-    <div className={cn(inter.className, "flex flex-col h-screen bg-white")}>
-      <div className="flex flex-col flex-grow overflow-hidden">
+    <div className={cn(inter.className, "flex justify-center h-screen bg-white")}>
+      <div className=" max-w-screen-lg border flex flex-col flex-grow overflow-hidden">
         <header className="flex justify-between items-center p-4">
           <h1 className="text-xl font-semibold">Ollama Chat</h1>
           <div className="flex items-center space-x-2">
-            <SettingsModal
+            {/* <SettingsModal
               modelName={modelName}
               setModelName={setModelName}
               apiUrl={apiUrl}
               setApiUrl={setApiUrl}
-            />
+            /> */}
             <Button variant="outline" onClick={clearChat}>
               Clear Chat
             </Button>
